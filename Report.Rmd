@@ -8,12 +8,13 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 #install.packages("igraph")
+#setwd("C:\\Users\\pc\\Desktop\\ohad\\?????????? ??\\?????????? ?????????? ???????????? ????????????\\class7 - Network Analysis")
 ```
 
 #Assignment 3 - Task 1 
-##Network Analysis
+##Network Analysis of Grey Anatomy network of romance
 
-###Grey Anatomy network of romance - Centrality
+###a. Centrality
 
 
 Let's load the Grey Anatomy network of romance and plot the graph
@@ -32,11 +33,13 @@ plot(g_)
 
 
 ```
+
+
 ####i. By Betweeneess
 We calcualte the betweeneess of each node in the new graph, and get the node with the highest betweeneess.
 ```{r}
 bet<-betweenness(g_)
-bet[v==max(bet)]
+bet[which.max(bet)]
 ```
 
 Like we can see , Sloan is the actor with the highest betweeneess(115.3667)
@@ -60,3 +63,104 @@ eig <- eigen_centrality(g_)
 eig$vector[which.max(eig$vector)]
 ```
 Karev is the actor with the highest value of eigenvector.
+
+
+###b. Community Detection.
+
+####Girvan-Newman community detection
+
+We will work on the whole network.
+```{r}
+plot(g)
+```
+
+This is Top-Down Algorithm, in each round it caluclates the betweenness of each edge and remove the edges with the highest value, until there are zero edges left.
+```{r}
+gc <- edge.betweenness.community(g)
+```
+
+We can see which actor belong to which community
+```{r}
+memb <- membership(gc)
+memb
+```
+Plot the graph with an unique color for each community.
+```{r}
+plot(g, vertex.size=6, #vertex.label=NA,
+     vertex.color=memb, asp=FALSE)
+```
+
+
+This algorithm return **7** Communities.
+```{r}
+length(unique(memb))
+```
+
+And the size of each community:
+```{r}
+a <- as.data.frame(table(memb))
+colnames(a) <- c("comm ID","Size")
+a
+```
+
+The modularity for each phase of this algorithm.
+```{r}
+gc$modularity
+```
+
+The best modularity score
+```{r}
+max(gc$modularity)
+```
+
+The phash (partition) with the best score
+```{r}
+which.max(gc$modularity)
+```
+
+
+####Fastgreedy algorithm community detection
+First we need to simplify the graph, because it only works with graphs with no self loops.
+```{r}
+g <- simplify(g)
+```
+
+This is bottom-up algorithm.
+Let's get the communities
+```{r}
+gc2 <- fastgreedy.community(g)
+```
+
+Let's plot the graph, now without labels
+```{r}
+plot(g,  vertex.size=6, vertex.label=NA,
+     vertex.color=membership(gc2), asp=FALSE)
+```
+
+This algorithm return **6** Communities.
+```{r}
+memb <- membership(gc2)
+length(unique(memb))
+```
+
+And the size of each community:
+```{r}
+a <- as.data.frame(table(memb))
+colnames(a) <- c("comm ID","Size")
+a
+```
+
+The modularity for each phase of this algorithm.
+```{r}
+gc2$modularity
+```
+
+The best modularity score
+```{r}
+max(gc2$modularity)
+```
+
+The phash (partition) with the best score
+```{r}
+which.max(gc2$modularity)
+```
