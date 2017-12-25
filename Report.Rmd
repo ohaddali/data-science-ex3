@@ -1,0 +1,63 @@
+---
+title: "Assignment3"
+author: "Ohad Dali"
+date: "December 25, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#install.packages("igraph")
+setwd("C:\\Users\\pc\\Desktop\\ohad\\?????????? ??\\?????????? ?????????? ???????????? ????????????\\class7 - Network Analysis")
+```
+
+#Assignment 3 - Task 1 
+##Network Analysis
+
+###Grey Anatomy network of romance - Centrality
+
+
+Let's load the Grey Anatomy network of romance and plot the graph
+```{r}
+library(igraph)
+ga.data <- read.csv('ga_edgelist.csv', header = TRUE , stringsAsFactors = FALSE)
+g <- graph.data.frame(ga.data,directed = F)
+plot(g)
+```
+
+Now let's focus on the big component of the graph.
+
+```{r}
+g_ <- delete.vertices(g, c('adele','chief','susan grey','thatch grey','ellis grey','tucker','bailey','ben'))
+plot(g_)
+
+
+```
+####i. By Betweeneess
+We calcualte the betweeneess of each node in the new graph, and get the node with the highest betweeneess.
+```{r}
+bet<-betweenness(g_)
+bet[v==max(bet)]
+```
+
+Like we can see , Sloan is the actor with the highest betweeneess(115.3667)
+
+####ii. By Closeness
+
+In the same way as before, we calculates the closeness of each node and get the maximum.
+
+```{r}
+clo <- closeness(g_)
+clo[which.max(clo)]
+```
+
+We can see that Torres has closeness of 0.01754386, which it the highest in the graph.
+
+####iii. By Eigenvector
+
+
+```{r}
+eig <- eigen_centrality(g_)
+eig$vector[which.max(eig$vector)]
+```
+Karev is the actor with the highest value of eigenvector.
