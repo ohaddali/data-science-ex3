@@ -4,6 +4,11 @@ author: "Ohad Dali"
 date: "December 25, 2017"
 output: rmarkdown::github_document
 ---
+This repository included the R markdown:
+1. Report.rmd - R markdown source file of this report.
+2. Report.html - html version of this report.
+3. ga_edgelist.csv - rey Anatomy network of romance data file.
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
