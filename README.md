@@ -3,7 +3,10 @@ Assignment3
 Ohad Dali
 December 25, 2017
 
-This repository included the R markdown: 1. Report.rmd - R markdown source file of this report. 2. ga\_edgelist.csv - rey Anatomy network of romance data file. 3. Report\_files - The png file for this report.
+This repository included the R markdown:
+1. Report.rmd - R markdown source file of this report. 
+2. ga_edgelist.csv - Grey Anatomy network of romance data file.
+3. Report\_files - The png file for this report.
 
 Assignment 3 - Task 1
 =====================
