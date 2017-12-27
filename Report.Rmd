@@ -6,8 +6,8 @@ output: rmarkdown::github_document
 ---
 This repository included the R markdown:
 1. Report.rmd - R markdown source file of this report.
-2. Report.html - html version of this report.
-3. ga_edgelist.csv - rey Anatomy network of romance data file.
+2. ga_edgelist.csv - rey Anatomy network of romance data file.
+3. Report_files - The png file for this report.
 
 
 ```{r setup, include=FALSE}
@@ -143,6 +143,202 @@ plot(g,  vertex.size=6, vertex.label=NA,
 ```
 
 This algorithm return **6** Communities.
+```{r}
+memb <- membership(gc2)
+length(unique(memb))
+```
+
+And the size of each community:
+```{r}
+a <- as.data.frame(table(memb))
+colnames(a) <- c("comm ID","Size")
+a
+```
+
+The modularity for each phase of this algorithm.
+```{r}
+gc2$modularity
+```
+
+The best modularity score
+```{r}
+max(gc2$modularity)
+```
+
+The phash (partition) with the best score
+```{r}
+which.max(gc2$modularity)
+```
+
+#Assignment 3 - Task 2
+##Network Analysis of Grey Anatomy network of romance
+
+
+Loading the relvant packages
+```{r}
+library(twitteR)
+library(tm)
+library(httr)
+library(igraph)
+```
+
+
+```{r}
+source("twitterAuth.R")
+options(httr_oauth_cache=F)
+setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
+```
+
+
+Search for 50 tweets that containes '#IphoneX'
+```{r}
+searchRes <- searchTwitter("#IphoneX", n=50 , lang="en")
+```
+
+It will be easy to work with a dataFrame then a list.
+```{r}
+tweetsDf <- twListToDF(searchRes)
+``` 
+
+
+```{r}
+words <- strsplit(tweetsDf$text," ")
+```
+
+Each node in the graph will be a word in a tweet.
+Given w1,w2 node in the graph, (w1,w2) belong to the the graph iff w1 and w2 in the same tweet.
+
+```{r}
+w1edge <- c()
+w2edge <- c()
+
+for(i in 1:length(words))
+{
+  for(word1 in words[[i]])
+  {
+    for(word2 in words[[i]])
+    {
+      if(word1!= word2)
+      {
+        w1edge <- c(w1edge,word1)
+        w2edge <- c(w2edge,word2)
+      }
+    }
+  }
+}
+```
+
+
+Making the graph..
+```{r}
+res <- cbind(from = w1edge , to = w2edge)
+write.csv(res , file = "tweets.csv" , row.names = FALSE)
+ga.data <- read.csv('tweets.csv', header = T)
+g <- graph.data.frame(ga.data,directed = F)
+plot(g, vertex.size=7, vertex.label=NA, asp=FALSE)
+```
+
+Number of nodes in the graph
+```{r}
+length(V(g))
+```
+
+
+###a. Now we will calculate Centrality : 
+####i. By Betweeneess
+We calcualte the betweeneess of each node in the new graph, and get the node with the highest betweeneess.
+```{r}
+bet<-betweenness(g)
+bet[which.max(bet)]
+```
+
+
+
+####ii. By Closeness
+
+In the same way as before, we calculates the closeness of each node and get the maximum.
+
+```{r}
+clo <- closeness(g)
+clo[which.max(clo)]
+```
+
+
+
+####iii. By Eigenvector
+
+
+```{r}
+eig <- eigen_centrality(g)
+eig$vector[which.max(eig$vector)]
+```
+
+###b. Community Detection.
+
+####Girvan-Newman community detection
+
+
+
+This is Top-Down Algorithm, in each round it caluclates the betweenness of each edge and remove the edges with the highest value, until there are zero edges left.
+```{r}
+gc <- edge.betweenness.community(g)
+```
+
+Plot the graph with an unique color for each community.
+```{r}
+memb <- membership(gc)
+plot(g, vertex.size=6, vertex.label=NA,
+     vertex.color=memb, asp=FALSE)
+```
+
+
+The number of communities
+```{r}
+length(unique(memb))
+```
+
+And the size of each community:
+```{r}
+a <- as.data.frame(table(memb))
+colnames(a) <- c("comm ID","Size")
+a
+```
+
+The modularity for each phase of this algorithm.
+```{r}
+gc$modularity
+```
+
+The best modularity score
+```{r}
+max(gc$modularity)
+```
+
+The phash (partition) with the best score
+```{r}
+which.max(gc$modularity)
+```
+
+
+####Fastgreedy algorithm community detection
+First we need to simplify the graph, because it only works with graphs with no self loops.
+```{r}
+g <- simplify(g)
+```
+
+This is bottom-up algorithm.
+Let's get the communities
+```{r}
+gc2 <- fastgreedy.community(g)
+```
+
+Let's plot the graph, now without labels
+```{r}
+plot(g,  vertex.size=6, vertex.label=NA,
+     vertex.color=membership(gc2), asp=FALSE)
+```
+
+The number of Communities
 ```{r}
 memb <- membership(gc2)
 length(unique(memb))
