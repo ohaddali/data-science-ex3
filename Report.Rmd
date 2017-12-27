@@ -255,6 +255,11 @@ bet<-betweenness(g)
 bet[which.max(bet)]
 ```
 
+The most common words in this tweets will be
+```{r}
+head(sort(bet,decreasing = TRUE),30)
+```
+
 
 
 ####ii. By Closeness
