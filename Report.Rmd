@@ -1,9 +1,11 @@
 ---
 title: "Assignment3"
-author: "Ohad Dali"
+author: "Matan Tsubery 316263938
+         Ohad Dali 316452929"
 date: "December 25, 2017"
 output: rmarkdown::github_document
 ---
+
 This repository included the R markdown:
 1. Report.rmd - R markdown source file of this report.
 2. ga_edgelist.csv - rey Anatomy network of romance data file.
@@ -171,7 +173,7 @@ which.max(gc2$modularity)
 ```
 
 #Assignment 3 - Task 2
-##Network Analysis of Grey Anatomy network of romance
+##Network Analysis of tweets
 
 
 Loading the relvant packages
@@ -189,10 +191,10 @@ options(httr_oauth_cache=F)
 setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
 ```
 
-
-Search for 50 tweets that containes '#IphoneX'
+Prince Harry wedding is now all over bbc website, let's have a look at some tweets about it.
+Search the latest 30 tweets that containes 'prince harry'
 ```{r}
-searchRes <- searchTwitter("#IphoneX", n=50 , lang="en")
+searchRes <- searchTwitter("prince harry", n=30 , lang="en")
 ```
 
 It will be easy to work with a dataFrame then a list.
@@ -200,9 +202,10 @@ It will be easy to work with a dataFrame then a list.
 tweetsDf <- twListToDF(searchRes)
 ``` 
 
-
+Now we will remove all of the common words in english, using the stopwords function.
 ```{r}
-words <- strsplit(tweetsDf$text," ")
+tweetsText <- tweetsDf$text
+tweetsText <- lapply(tweetsText, function(str) removeWords(str,stopwords("english")))
 ```
 
 Each node in the graph will be a word in a tweet.
@@ -211,14 +214,19 @@ Given w1,w2 node in the graph, (w1,w2) belong to the the graph iff w1 and w2 in 
 ```{r}
 w1edge <- c()
 w2edge <- c()
-
-for(i in 1:length(words))
+tweets <- lapply(tweetsText, function(str) strsplit(str[[1]]," "))
+tweets <- lapply(tweets, unlist)
+tweets <- lapply(tweets, function(x) x[!x==""])
+tweets <- lapply(tweets, function(x) x[!x=="RT"])
+tweets <- lapply(tweets, function(lst) Filter(function(x) !grepl("http",x),lst))
+for(tweet in tweets)
 {
-  for(word1 in words[[i]])
+  tweet <- unique(tweet)
+  for(word1 in tweet)
   {
-    for(word2 in words[[i]])
+    for(word2 in tweet)
     {
-      if(word1!= word2)
+      if(word1!=word2)
       {
         w1edge <- c(w1edge,word1)
         w2edge <- c(w2edge,word2)
@@ -236,11 +244,6 @@ write.csv(res , file = "tweets.csv" , row.names = FALSE)
 ga.data <- read.csv('tweets.csv', header = T)
 g <- graph.data.frame(ga.data,directed = F)
 plot(g, vertex.size=7, vertex.label=NA, asp=FALSE)
-```
-
-Number of nodes in the graph
-```{r}
-length(V(g))
 ```
 
 
